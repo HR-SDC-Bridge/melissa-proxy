@@ -14,8 +14,8 @@
     <!-- <div id="image-service" ></div>
     <div id="about" ></div>
     <div id="product-size" ></div> -->
-    <div id="review" ></div>
-    <!-- <div id="others-also-viewed" ></div> -->
+    <div id="review"></div>
+    <div id="others-also-viewed"></div>
   </div>
 
 
@@ -33,9 +33,12 @@
   <!-- <script src="http://ec2-54-67-28-46.us-west-1.compute.amazonaws.com:3004/index.js" ></script -->
 
 
+  <!-- Reviews -->
+  <script src="http://52.15.202.196:3000/bundle.js"></script>
   <script>ReactDOM.render(React.createElement(Review), document.getElementById('review'));</script>
-  <script src="http://localhost:3000/bundle.js" ></script>
-  <!-- <script src="http://18.222.25.224:3005/bundle.js" ></script> -->
 
+  <!-- Others Also Viewed -->
+  <script crossorigin src="http://3.143.80.36:5500/bundle.js"></script>
+  <script>ReactDOM.render(<OthersAlsoViewed />, document.getElementById('others-also-viewed'));</script>
 </body>
 </html>
