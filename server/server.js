@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const axios = require('axios');
+const fetch = require('node-fetch');
 
 const app = express();
 const port = 4000;
@@ -20,36 +21,39 @@ app.use('*', (req, res, next) => {
 
 
 /* Server Side Rendering */
-// const clientBundles = '/../public/services';
-// const serverBundles = '/../templates/services';
-// const serviceConfig = require('/../service-config.json');
-// const services = require('./loader.js')(clientBundles, serverBundles, serviceConfig);
+const clientBundles = '../public/services';
+const serverBundles = '../templates/services';
+const serviceConfig = require('../templates/service-config.json');
+const services = require('./loader.js')(clientBundles, serverBundles, serviceConfig);
 
-// const React = require('react');
-// const ReactDom = require('react-dom/server');
-// const Layout = require('/../templates/layout');
-// const App = require('/../templates/app');
-// const Scripts = require('/../templates/scripts');
+const React = require('react');
+const ReactDom = require('react-dom/server');
+const Layout = require('../templates/layout');
+const App = require('../templates/app');
+const Scripts = require('../templates/scripts');
 
-// const renderComponents = (components, props = {}) => {
-//   return Object.keys(components).map(item => {
-//     let component = React.createElement(components[item], props);
-//     return ReactDom.renderToString(component);
-//   });
-// };
+const renderComponents = (components, props = {}) => {
+  return Object.keys(components).map(item => {
+    console.log(components[item], props);
+    let component = React.createElement(components[item], props);
+    return ReactDom.renderToString(component);
+  });
+};
 
 /* Routes */
 
-// app.get('/:id', (req, res) => {
-//   let components = renderComponents(services, {itemid: req.params.id});
-
-//   res.end(Layout(
-//     'Vikea Proxy',
-//     App(...components),
-//     Scripts(Object.keys(services))
-//     ));
-//   //res.redirect(`http://52.15.202.196:3000/api/reviews/${req.params.id}/details`);
-// });
+app.get('/:id', (req, res) => {
+  console.log('services inside app get: ', services);
+  let components = renderComponents(services, {itemID: req.params.id});
+  console.log('components are: ', components);
+  //console.log(Layout('Vikea Proxy', App(...components)));
+  res.end(Layout(
+    'Vikea Proxy',
+    App(...components),
+    Scripts(Object.keys(services))
+    ));
+  //res.redirect(`http://52.15.202.196:3000/api/reviews/${req.params.id}/details`);
+});
 
 
 app.get('/:id', (req, res) => {
