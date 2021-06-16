@@ -10,6 +10,7 @@ const port = 4000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '/../public')));
+
 app.use(cors());
 app.use('*', (req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -18,39 +19,11 @@ app.use('*', (req, res, next) => {
   next();
 });
 
-
-/* Server Side Rendering */
-// const clientBundles = '/../public/services';
-// const serverBundles = '/../templates/services';
-// const serviceConfig = require('/../service-config.json');
-// const services = require('./loader.js')(clientBundles, serverBundles, serviceConfig);
-
-// const React = require('react');
-// const ReactDom = require('react-dom/server');
-// const Layout = require('/../templates/layout');
-// const App = require('/../templates/app');
-// const Scripts = require('/../templates/scripts');
-
-// const renderComponents = (components, props = {}) => {
-//   return Object.keys(components).map(item => {
-//     let component = React.createElement(components[item], props);
-//     return ReactDom.renderToString(component);
-//   });
-// };
-
-/* Routes */
-
-// app.get('/:id', (req, res) => {
-//   let components = renderComponents(services, {itemid: req.params.id});
-
-//   res.end(Layout(
-//     'Vikea Proxy',
-//     App(...components),
-//     Scripts(Object.keys(services))
-//     ));
-//   //res.redirect(`http://52.15.202.196:3000/api/reviews/${req.params.id}/details`);
-// });
-
+const redis = require('redis');
+const redis_client = redis.createClient(process.env.PORT_REDIS);
+redis_client.on('error', err => {
+  console.log('Redis Error ' + err);
+});
 
 app.get('/:id', (req, res) => {
   res.sendFile(path.join(__dirname, '/../public/index.html'));
@@ -73,17 +46,28 @@ app.get('/', (req, res) => {
 //   res.redirect(`http://ec2-18-221-34-3.us-east-2.compute.amazonaws.com:3002/api/sizes/${req.params.id}`);
 // });
 
-app.get('/api/reviews/:id/details', (req, res) => {
-  res.redirect(`http://52.15.202.196:3000/api/reviews/${req.params.id}/details`);
+app.get('/api/reviews/:id/details', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const reviews = await axios.get(`http://18.224.41.155/api/reviews/${req.params.id}/details`);
+
+    const reviewsData = reviews.data;
+    redis_client.setex(id, 3600, JSON.stringify(reviewsData));
+
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(error);
+  }
+
 });
 
 app.post('/api/reviews/:itemID', (req, res, next) => {
-    axios.post(`http://52.15.202.196:3000/api/reviews/${req.params.itemID}`, req.body )
+  axios.post(`http://18.224.41.155/api/reviews/${req.params.itemID}`, req.body)
     .then(result => {
       console.log(result.status);
       res.send(result.status)
     })
-     .catch((err) => res.send(err.status));
+    .catch((err) => res.send(err.status));
 });
 
 app.get('/similar-products-by-views/:id', (req, res) => {
@@ -94,7 +78,11 @@ app.get('/similar-products-by-views/:id', (req, res) => {
     .catch((err) => console.error('GET OTHERS ALSO VIEWED FAILED: ', err))
 });
 
-
+process.on('SIGINT', function() {
+  console.log( "\nGracefully shutting down from SIGINT (Ctrl-C)" );
+  // some other closing procedures go here
+  process.exit(1);
+});
 
 const server = app.listen(port, function () {
   console.log(`listening on port:${port}`);

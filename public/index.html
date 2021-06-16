@@ -15,7 +15,7 @@
     <div id="about" ></div>
     <div id="product-size" ></div> -->
     <div id="review"></div>
-    <div id="others-also-viewed"></div>
+    <!-- <div id="others-also-viewed"></div> -->
   </div>
 
 
@@ -34,11 +34,12 @@
 
 
   <!-- Reviews -->
-  <script src="http://52.15.202.196:3000/bundle.js"></script>
-  <script>ReactDOM.render(React.createElement(Review), document.getElementById('review'));</script>
+  <!-- 18.224.41.155 is Load Balancer -->
+  <script src="http://18.224.41.155/bundle.js"></script>
+  <script>ReactDOM.render(React.createElement(App), document.getElementById('review'));</script>
 
   <!-- Others Also Viewed -->
-  <script crossorigin src="http://3.143.80.36:5500/bundle.js"></script>
-  <script>ReactDOM.render(<OthersAlsoViewed />, document.getElementById('others-also-viewed'));</script>
+  <!-- <script crossorigin src="http://3.143.80.36:5500/bundle.js"></script>
+  <script>ReactDOM.render(<OthersAlsoViewed />, document.getElementById('others-also-viewed'));</script> -->
 </body>
 </html>
