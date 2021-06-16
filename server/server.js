@@ -25,6 +25,28 @@ redis_client.on('error', err => {
   console.log('Redis Error ' + err);
 });
 
+
+
+checkCache = (req, res, next) => {
+  const { id } = req.params;
+  //get data value for key =id
+  redis_client.get(id, (err, data) => {
+      if (err) {
+          console.log(err);
+          res.status(500).send(err);
+      }
+      //if no match found
+      if (data != null) {
+          res.send(data);
+      }
+      else {
+          //proceed to next middleware function
+          next();
+      }
+   });
+};
+
+
 app.get('/:id', (req, res) => {
   res.sendFile(path.join(__dirname, '/../public/index.html'));
 });
@@ -46,7 +68,7 @@ app.get('/', (req, res) => {
 //   res.redirect(`http://ec2-18-221-34-3.us-east-2.compute.amazonaws.com:3002/api/sizes/${req.params.id}`);
 // });
 
-app.get('/api/reviews/:id/details', async (req, res) => {
+app.get('/api/reviews/:id/details', checkCache, async (req, res) => {
   try {
     const { id } = req.params;
     const reviews = await axios.get(`http://18.224.41.155/api/reviews/${req.params.id}/details`);
