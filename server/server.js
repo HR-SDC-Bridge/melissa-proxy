@@ -76,6 +76,8 @@ app.get('/api/reviews/:id/details', checkCache, async (req, res) => {
     const reviewsData = reviews.data;
     redis_client.setex(id, 3600, JSON.stringify(reviewsData));
 
+    res.send(reviewsData);
+
   } catch (err) {
     console.log(err);
     return res.status(500).json(error);
